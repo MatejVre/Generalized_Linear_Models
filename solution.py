@@ -101,9 +101,10 @@ class OrdinalLogReg():
         
         deltas = np.ones(K-2)
         delta_constraints = np.array([(0, np.inf)]*(K-2))
+        print(delta_constraints)
 
-        parameters = np.concatenate((betas, deltas))
-        constraints = np.concatenate((beta_constraints, delta_constraints))
+        parameters = betas if len(deltas) == 0 else np.concatenate((betas, deltas))
+        constraints = beta_constraints if len(delta_constraints) == 0 else np.concatenate((beta_constraints, delta_constraints))
 
         result = fmin_l_bfgs_b(self.maximum_likelihood, parameters, args=(X, y), approx_grad=True, bounds=constraints)
         print(result[0])
