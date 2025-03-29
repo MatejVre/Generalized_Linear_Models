@@ -1,48 +1,34 @@
 import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
 import pandas as pd
-
-X = np.arange(0, 10, 1)
-M = 2
-
-B = 3
-
-Y = M * X + B
-initial_values = np.array([0.0, 1.0])
-def fun(parameters, *args):
-        x = args[0]
-        y = args[1]
-        m, b = parameters
-        y_model = m*x + b
-        error = sum(np.power((y - y_model), 2))
-        return error
-
-
-
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 
 class MultinomialLogReg():
 
     def __init__(self):
-        self.encoder = {}
-        self.decoder = {}
+        # self.encoder = {}
+        # self.decoder = {}
         self.betas = None
 
     def build(self, X, y):
 
         r, c = X.shape
         
-        self.word_to_index(y)
-        K = len(self.encoder)
-        beta_init = np.random.randn(c * (K - 1))
+        K = len(np.unique(y))
+        np.random.seed(42)
+        beta_init = np.random.randn((c + 1)* (K - 1)) #plus 1 for the intercept
 
         result = fmin_l_bfgs_b(self.maximum_likelihood, beta_init, args=(X, y), approx_grad=True)
         result_betas = result[0]
-        self.betas = result_betas.reshape(c, (K-1))
+        self.betas = result_betas.reshape(c + 1, (K-1))
+        print(self.betas)
         return self
 
     def predict(self, X):
         
+        X = np.column_stack((X, np.ones(X.shape[0])))
         dot = X@self.betas
         dot = np.column_stack((dot, np.zeros(X.shape[0])))
         exp = np.exp(dot)
@@ -56,31 +42,34 @@ class MultinomialLogReg():
         y = args[1]
 
         r, c = X.shape
-        y_encoded = self.one_hot_encode(y)
-        K = len(self.encoder)
+        X = np.column_stack((X, np.ones(r)))
+        # y_encoded = self.one_hot_encode(y) #plus 1 for the intercept
+        K = len(np.unique(y))
         
         beta_array = parameters
-        beta_matrix = beta_array.reshape(c, K-1)
+        beta_matrix = beta_array.reshape(c+1, K-1)
         dot = X@beta_matrix
         dot = np.column_stack((dot, np.zeros(r)))
     
         exp = np.exp(dot)
         probabilities = exp / np.sum(exp, axis=1, keepdims=True)
-        log_likelihood = np.sum(np.log(np.sum(y_encoded*probabilities, axis=1)))
+        log_likelihood = 0
+        for i in range(r):
+            log_likelihood += np.log(probabilities[i, y[i]])
         return - log_likelihood
 
-    def one_hot_encode(self, y):
-        y_encoded = np.zeros((len(y), len(self.encoder)))
-        for i, word in enumerate(y):
-            y_encoded[i][self.encoder[word]] = 1
-        return y_encoded
+    # def one_hot_encode(self, y):
+    #     y_encoded = np.zeros((len(y), len(self.encoder)))
+    #     for i, word in enumerate(y):
+    #         y_encoded[i][self.encoder[word]] = 1
+    #     return y_encoded
             
     
-    def word_to_index(self, y):
-        unique = np.unique(y)
-        for index, label in enumerate(unique):
-            self.encoder[label] = index
-            self.decoder[index] = label
+    # def word_to_index(self, y):
+    #     unique = np.unique(y)
+    #     for index, label in enumerate(unique):
+    #         self.encoder[label] = index
+    #         self.decoder[index] = label
 
 class OrdinalLogReg():
 
@@ -126,7 +115,7 @@ class OrdinalLogReg():
         ts[-1] = np.inf
 
         probabilities = np.zeros((r, K))
-
+        print(ts)
         for j, dot in enumerate(dots):
             for i in range(1, len(ts)):
                 probabilities[j, i-1] = logistic(ts[i]- dot) - logistic(ts[i-1]- dot)
@@ -178,13 +167,29 @@ def logistic(x):
 
 if __name__ == "__main__":
     # df = pd.read_csv("dataset.csv", delimiter=";")
-    # y = df["ShotType"].to_numpy()
-    # X = df.drop(columns="ShotType").to_numpy()
-    a = np.array([1,2,3])
-    b = np.array([4,5,6])
-    c = [None]*3
-    print(c)
-    #number of deltas is number of classes -2
+    # train, test = train_test_split(df, test_size=0.2)
 
+    # categorical_features = ["Competition", "PlayerType", "Movement"]
+    # for feat in categorical_features:
+    #     le = LabelEncoder()
+    #     le.fit(train[feat])
+    #     train[feat] = le.transform(train[feat])
+    #     test[feat] = le.transform(test[feat])
+    # y_train = train["ShotType"]
+    # X_train = train.drop(columns=["ShotType"])
+
+    # y_test = test["ShotType"]
+    # X_test = test.drop(columns=["ShotType"])
+
+    # log_reg = OrdinalLogReg()
+    # lr = log_reg.build(X_train, y_train)
+
+    # probs = lr.predict(X_test)
+    # classes = np.argmax(probs, axis=1)
+
+    # predictions = [lr.decoder[label] for label in classes]
+    # accuracy = np.mean(predictions == y_test)
+    # print(accuracy)
+    pass
 
     

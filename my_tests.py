@@ -19,6 +19,8 @@ class HW2OwnTests(unittest.TestCase):
         reg = MultinomialLogReg()
         classifier = reg.build(self.X_train, self.y_train)
         probabilities = classifier.predict(self.X_test)
+        print(probabilities)
+        print(classifier.decoder)
         self.assertTrue(probabilities.shape == (1, 2))
         self.assertEqual(classifier.decoder[np.argmax(probabilities)], "LeBron")
 
