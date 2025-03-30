@@ -50,12 +50,11 @@ class MultinomialLogReg():
         beta_matrix = beta_array.reshape(c+1, K-1)
         dot = X@beta_matrix
         dot = np.column_stack((dot, np.zeros(r)))
-    
+
         exp = np.exp(dot)
         probabilities = exp / np.sum(exp, axis=1, keepdims=True)
-        log_likelihood = 0
-        for i in range(r):
-            log_likelihood += np.log(probabilities[i, y[i]])
+        ys = np.eye(K)[y]
+        log_likelihood = np.sum(np.log(np.sum(probabilities*ys, axis=1)))
         return - log_likelihood
 
     # def one_hot_encode(self, y):
