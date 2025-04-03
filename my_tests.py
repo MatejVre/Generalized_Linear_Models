@@ -11,7 +11,8 @@ class HW2OwnTests(unittest.TestCase):
                             [-3,-2,-1],
                             [-10,-5,-4]
         ])
-        self.y_train = np.array(["LeBron", "LeBron", "James", "James"])
+    
+        self.y_train = np.array([1, 1, 0, 0])
         self.X_test = np.array([[7,8,9]])
 
         
@@ -20,16 +21,15 @@ class HW2OwnTests(unittest.TestCase):
         classifier = reg.build(self.X_train, self.y_train)
         probabilities = classifier.predict(self.X_test)
         print(probabilities)
-        print(classifier.decoder)
         self.assertTrue(probabilities.shape == (1, 2))
-        self.assertEqual(classifier.decoder[np.argmax(probabilities)], "LeBron")
+        self.assertEqual(np.argmax(probabilities), 1)
 
     def test_Ordinal(self):
         reg = OrdinalLogReg()
         classifier = reg.build(self.X_train, self.y_train)
         probabilities = classifier.predict(self.X_test)
         self.assertTrue(probabilities.shape == (1, 2))
-        self.assertEqual(classifier.decoder[np.argmax(probabilities)], "LeBron")
+        self.assertEqual(np.argmax(probabilities), 1)
 
     
 

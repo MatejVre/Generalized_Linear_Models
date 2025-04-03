@@ -26,6 +26,7 @@ class HW2Tests(unittest.TestCase):
         self.assertTrue((prob <= 1).all())
         self.assertTrue((prob >= 0).all())
         np.testing.assert_almost_equal(prob.sum(axis=1), 1)
+        print(c.betas)
 
     def test_ordinal(self):
         l = OrdinalLogReg()
@@ -36,7 +37,6 @@ class HW2Tests(unittest.TestCase):
         self.assertTrue((prob <= 1).all())
         self.assertTrue((prob >= 0).all())
         np.testing.assert_almost_equal(prob.sum(axis=1), 1)
-        print(c.decoder)
 
 
 if __name__ == "__main__":
