@@ -16,13 +16,14 @@ class MultinomialLogReg():
         self.betas = None
 
     def build(self, X, y):
+        X = np.column_stack((X, np.ones(X.shape[0])))
         r, c = X.shape
         
         K = len(np.unique(y))
         np.random.seed(42)
-        beta_init = np.random.randn((c)* (K - 1))
+        beta_init = np.random.randn((c) * (K - 1))
 
-        result = fmin_l_bfgs_b(self.maximum_likelihood, beta_init, args=(X, y), approx_grad=True, maxfun=100000, maxiter=1000)
+        result = fmin_l_bfgs_b(self.maximum_likelihood, beta_init, args=(X, y), approx_grad=True, maxfun=100000, maxiter=10000)
         print(result)
         result_betas = result[0]
         self.betas = result_betas.reshape(c, (K-1))
@@ -30,7 +31,7 @@ class MultinomialLogReg():
         return self
 
     def predict(self, X):
-        
+        X = np.column_stack((X, np.ones(X.shape[0])))
         dot = X@self.betas
         dot = np.column_stack((dot, np.zeros(X.shape[0])))
         exp = np.exp(dot)
