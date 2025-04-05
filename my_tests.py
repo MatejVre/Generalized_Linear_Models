@@ -28,6 +28,7 @@ class HW2OwnTests(unittest.TestCase):
         reg = OrdinalLogReg()
         classifier = reg.build(self.X_train, self.y_train)
         probabilities = classifier.predict(self.X_test)
+        print(probabilities)
         self.assertTrue(probabilities.shape == (1, 2))
         self.assertEqual(np.argmax(probabilities), 1)
 
